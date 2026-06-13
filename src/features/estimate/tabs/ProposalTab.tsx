@@ -192,7 +192,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
             <p className="text-sm text-blue-200">
               すべての内容を確認しました。
               <br />
-              ボタンを押すと、OneDriveにExcel見積書を保存します。
+              会社環境ではOneDriveに保存し、試験中はExcelをダウンロードします。
             </p>
           </div>
 
@@ -202,7 +202,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
             className="group bg-red-600 hover:bg-red-500 text-white w-full max-w-md py-6 font-black text-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-4 rounded-2xl z-10"
           >
             <span className="group-hover:animate-bounce text-3xl">📄</span>
-            {isPublishing ? '保存中...' : 'OneDriveに保存'}
+            {isPublishing ? '作成中...' : '見積書を作成'}
           </button>
         </div>
       </div>

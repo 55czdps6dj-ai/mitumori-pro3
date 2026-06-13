@@ -385,7 +385,9 @@ export default function EstimateApp({
   const handleCreateOneDriveWorkbook = async () => {
     try {
       const result = await createEstimateOneDriveWorkbook(store);
-      window.open(result.webUrl, '_blank', 'noopener,noreferrer');
+      if (result.webUrl) {
+        window.open(result.webUrl, '_blank', 'noopener,noreferrer');
+      }
     } catch (error: any) {
       console.error('OneDrive Export Error:', error);
       alert(`OneDrive見積書の作成に失敗しました。\n詳細: ${error.message}`);
