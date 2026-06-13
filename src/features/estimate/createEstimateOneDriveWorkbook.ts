@@ -1,4 +1,4 @@
-type EstimateSpreadsheetPayload = {
+type EstimateOneDrivePayload = {
   customer: any;
   trucks: any[];
   labors: any[];
@@ -7,7 +7,7 @@ type EstimateSpreadsheetPayload = {
   discountRate: number;
 };
 
-const buildEstimatePayload = (store: any): EstimateSpreadsheetPayload => ({
+const buildEstimatePayload = (store: any): EstimateOneDrivePayload => ({
   customer: store.customer || {},
   trucks: store.trucks || [],
   labors: store.labors || [],
@@ -16,8 +16,8 @@ const buildEstimatePayload = (store: any): EstimateSpreadsheetPayload => ({
   discountRate: Number(store.discountRate || 0),
 });
 
-export const createEstimateSpreadsheet = async (store: any) => {
-  const response = await fetch('/api/estimate-spreadsheet', {
+export const createEstimateOneDriveWorkbook = async (store: any) => {
+  const response = await fetch('/api/estimate-onedrive', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -29,13 +29,13 @@ export const createEstimateSpreadsheet = async (store: any) => {
 
   if (!response.ok) {
     throw new Error(
-      result?.message || 'スプレッドシート見積書の作成に失敗しました。'
+      result?.message || 'OneDrive見積書の作成に失敗しました。'
     );
   }
 
   return result as {
-    spreadsheetId: string;
-    spreadsheetUrl: string;
-    title: string;
+    fileName: string;
+    webUrl: string;
+    itemId: string;
   };
 };

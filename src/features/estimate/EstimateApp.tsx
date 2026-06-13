@@ -9,7 +9,7 @@ import HouseholdTab from './tabs/HouseholdTab';
 import WorkConditionTab from './tabs/WorkConditionTab';
 import PricingTab from './tabs/PricingTab';
 import ProposalTab from './tabs/ProposalTab';
-import { createEstimateSpreadsheet } from './createEstimateSpreadsheet';
+import { createEstimateOneDriveWorkbook } from './createEstimateOneDriveWorkbook';
 
 // ==============================
 // タブ定義
@@ -382,13 +382,13 @@ export default function EstimateApp({
       win.onload = () => setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   };
 
-  const handleCreateSpreadsheet = async () => {
+  const handleCreateOneDriveWorkbook = async () => {
     try {
-      const result = await createEstimateSpreadsheet(store);
-      window.open(result.spreadsheetUrl, '_blank', 'noopener,noreferrer');
+      const result = await createEstimateOneDriveWorkbook(store);
+      window.open(result.webUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
-      console.error('Spreadsheet Export Error:', error);
-      alert(`スプレッドシート見積書の作成に失敗しました。\n詳細: ${error.message}`);
+      console.error('OneDrive Export Error:', error);
+      alert(`OneDrive見積書の作成に失敗しました。\n詳細: ${error.message}`);
     }
   };
 
@@ -474,7 +474,7 @@ export default function EstimateApp({
           {activeTab === 'labor' && <WorkConditionTab store={store} />}
           {activeTab === 'pricing' && <PricingTab store={store} />}
           {activeTab === 'proposal' && (
-            <ProposalTab store={store} onPrintClick={handleCreateSpreadsheet} />
+            <ProposalTab store={store} onPrintClick={handleCreateOneDriveWorkbook} />
           )}
         </div>
       </main>
