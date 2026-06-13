@@ -184,7 +184,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
             <p className="text-sm text-blue-200">
               すべての内容を確認しました。
               <br />
-              ボタンを押すと、自動的に印刷プレビューが起動します。
+              ボタンを押すと、雛形に反映したExcel見積書を出力します。
             </p>
           </div>
 
@@ -193,7 +193,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
             className="group bg-red-600 hover:bg-red-500 text-white w-full max-w-md py-6 font-black text-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-4 rounded-2xl z-10"
           >
             <span className="group-hover:animate-bounce text-3xl">📄</span>
-            見積書を確定発行
+            Excel見積書を出力
           </button>
         </div>
       </div>

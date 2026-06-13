@@ -9,6 +9,7 @@ import HouseholdTab from './tabs/HouseholdTab';
 import WorkConditionTab from './tabs/WorkConditionTab';
 import PricingTab from './tabs/PricingTab';
 import ProposalTab from './tabs/ProposalTab';
+import { exportEstimateWorkbook } from './exportEstimateWorkbook';
 
 // ==============================
 // タブ定義
@@ -381,6 +382,15 @@ export default function EstimateApp({
       win.onload = () => setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   };
 
+  const handleExportWorkbook = async () => {
+    try {
+      await exportEstimateWorkbook(store);
+    } catch (error: any) {
+      console.error('Workbook Export Error:', error);
+      alert(`Excel見積書の出力に失敗しました。\n詳細: ${error.message}`);
+    }
+  };
+
   // ==============================
   // レンダリング
   // ==============================
@@ -463,7 +473,7 @@ export default function EstimateApp({
           {activeTab === 'labor' && <WorkConditionTab store={store} />}
           {activeTab === 'pricing' && <PricingTab store={store} />}
           {activeTab === 'proposal' && (
-            <ProposalTab store={store} onPrintClick={handlePrint} />
+            <ProposalTab store={store} onPrintClick={handleExportWorkbook} />
           )}
         </div>
       </main>
