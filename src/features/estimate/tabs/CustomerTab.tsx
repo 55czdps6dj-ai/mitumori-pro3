@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useStaffStore } from '../../staff/useStaffStore';
 
 const InputField = ({
   label,
@@ -50,8 +51,43 @@ const ElevatorToggle = ({ label, checked, onChange }: any) => (
   </label>
 );
 
+const SelectField = ({ label, value, onChange, options, placeholder }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-[10px] font-black text-slate-400 ml-1 uppercase tracking-wider">
+      {label}
+    </label>
+    <select
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#003366] focus:bg-white transition-all shadow-sm"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option: any) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
 export default function CustomerTab({ store }: { store: any }) {
   const { customer, setCustomer } = store;
+  const { staffList, fetchStaff } = useStaffStore();
+  const staffOptions = staffList.map((staff: any) => ({
+    value: staff.name,
+    label: staff.name,
+  }));
+  const hasCurrentEstimator =
+    customer?.estimator &&
+    !staffOptions.some((option: any) => option.value === customer.estimator);
+  const estimatorOptions = hasCurrentEstimator
+    ? [{ value: customer.estimator, label: customer.estimator }, ...staffOptions]
+    : staffOptions;
+
+  useEffect(() => {
+    fetchStaff();
+  }, [fetchStaff]);
 
   return (
     <div className="space-y-6 pb-24 p-4">
@@ -85,11 +121,12 @@ export default function CustomerTab({ store }: { store: any }) {
             />
           </div>
 
-          <InputField
+          <SelectField
             label="見積担当者"
             value={customer?.estimator}
             onChange={(val) => setCustomer({ estimator: val })}
-            placeholder="担当者名を入力"
+            options={estimatorOptions}
+            placeholder="担当者を選択"
           />
         </div>
       </section>

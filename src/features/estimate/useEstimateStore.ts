@@ -58,7 +58,7 @@ const initialCustomer = {
   fromAddress: '',
   toAddress: '',
   receivedBy: '',
-  estimator: '京王 太郎',
+  estimator: '',
   staffName: '',
   hasElevatorFrom: true,
   hasElevatorTo: false,
@@ -536,7 +536,23 @@ export const useEstimateStore = create(
     },
     {
       name: 'estimate-storage',
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState: any, version: number) => {
+        if (
+          version < 2 &&
+          persistedState?.customer?.estimator === '京王 太郎'
+        ) {
+          return {
+            ...persistedState,
+            customer: {
+              ...persistedState.customer,
+              estimator: '',
+            },
+          };
+        }
+        return persistedState;
+      },
       // ✅ items と totalPt は persist しない（DBから復元するため）
       partialize: (state: any) => {
         const { items, totalPt, ...rest } = state;
