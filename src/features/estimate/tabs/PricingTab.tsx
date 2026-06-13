@@ -171,16 +171,6 @@ export default function PricingTab({ store }: { store: any }) {
         </div>
       </section>
 
-      {/* フッターアクション */}
-      <div className="pt-4 pb-8 flex justify-center gap-4">
-        <button className="flex-1 bg-white border-2 border-[#003366] text-[#003366] font-black py-4 rounded-xl text-xs active:scale-95 transition-all">
-          一時保存
-        </button>
-        <button className="flex-1 bg-[#003366] text-white font-black py-4 rounded-xl text-xs shadow-lg active:scale-95 transition-all">
-          PDFプレビュー
-        </button>
-      </div>
-      
       <p className="text-center text-[9px] text-slate-400 font-bold uppercase tracking-widest">
         Keio Logistics CRM System v2.1
       </p>
