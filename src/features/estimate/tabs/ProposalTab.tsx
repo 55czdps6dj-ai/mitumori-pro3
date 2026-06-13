@@ -1,15 +1,16 @@
 // @ts-nocheck
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { calculateTotalWithTax } from '../calculateEstimateTotals';
 
 type Props = {
   store: any;
-  onPrintClick?: () => void;
+  onPrintClick?: () => void | Promise<void>;
 };
 
 export default function ProposalTab({ store, onPrintClick }: Props) {
+  const [isPublishing, setIsPublishing] = useState(false);
   const { costs, customer, updateCustomer, materials, updateMaterial } = store;
   const visibleMaterials = (materials || []).filter(
     (m: any) => m.name !== 'ハンガーBOX'
@@ -30,14 +31,21 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
   });
 
   // 発行ボタンハンドラー
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     // 担当者が未入力の場合の簡易ガード（任意）
     if (!customer?.estimator) {
       if (!confirm('担当者名が入力されていません。このまま発行しますか？')) {
         return;
       }
     }
-    if (onPrintClick) onPrintClick();
+    if (!onPrintClick) return;
+
+    setIsPublishing(true);
+    try {
+      await onPrintClick();
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -184,16 +192,17 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
             <p className="text-sm text-blue-200">
               すべての内容を確認しました。
               <br />
-              ボタンを押すと、雛形に反映したExcel見積書を出力します。
+              ボタンを押すと、雛形からGoogleスプレッドシートを作成します。
             </p>
           </div>
 
           <button
             onClick={handleFinalize}
+            disabled={isPublishing}
             className="group bg-red-600 hover:bg-red-500 text-white w-full max-w-md py-6 font-black text-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-4 rounded-2xl z-10"
           >
             <span className="group-hover:animate-bounce text-3xl">📄</span>
-            Excel見積書を出力
+            {isPublishing ? '作成中...' : 'スプレッドシートを作成'}
           </button>
         </div>
       </div>

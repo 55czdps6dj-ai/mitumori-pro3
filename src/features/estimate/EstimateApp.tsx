@@ -9,7 +9,7 @@ import HouseholdTab from './tabs/HouseholdTab';
 import WorkConditionTab from './tabs/WorkConditionTab';
 import PricingTab from './tabs/PricingTab';
 import ProposalTab from './tabs/ProposalTab';
-import { exportEstimateWorkbook } from './exportEstimateWorkbook';
+import { createEstimateSpreadsheet } from './createEstimateSpreadsheet';
 
 // ==============================
 // タブ定義
@@ -382,12 +382,13 @@ export default function EstimateApp({
       win.onload = () => setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   };
 
-  const handleExportWorkbook = async () => {
+  const handleCreateSpreadsheet = async () => {
     try {
-      await exportEstimateWorkbook(store);
+      const result = await createEstimateSpreadsheet(store);
+      window.open(result.spreadsheetUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
-      console.error('Workbook Export Error:', error);
-      alert(`Excel見積書の出力に失敗しました。\n詳細: ${error.message}`);
+      console.error('Spreadsheet Export Error:', error);
+      alert(`スプレッドシート見積書の作成に失敗しました。\n詳細: ${error.message}`);
     }
   };
 
@@ -473,7 +474,7 @@ export default function EstimateApp({
           {activeTab === 'labor' && <WorkConditionTab store={store} />}
           {activeTab === 'pricing' && <PricingTab store={store} />}
           {activeTab === 'proposal' && (
-            <ProposalTab store={store} onPrintClick={handleExportWorkbook} />
+            <ProposalTab store={store} onPrintClick={handleCreateSpreadsheet} />
           )}
         </div>
       </main>
