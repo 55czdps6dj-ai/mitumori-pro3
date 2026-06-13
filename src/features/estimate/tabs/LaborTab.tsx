@@ -149,11 +149,12 @@ export default function LaborTab() {
           </button>
         </div>
         {trucks.map((t: any) => {
+          const distanceOverage = Math.max(Number(t.distance || 0) - 100, 0);
+          const hourOverage = Math.max(Number(t.hours || 0) - 8, 0);
           const lineTotal =
-            (Number(t.price || 0) +
-              Number(t.distance || 0) * Number(t.distanceRate || 0) +
-              Number(t.hours || 0) * Number(t.hourRate || 0)) *
-            Number(t.quantity || 0);
+            Number(t.price || 0) * Number(t.quantity || 0) +
+            distanceOverage * Number(t.distanceRate || 0) +
+            hourOverage * Number(t.hourRate || 0);
           return (
             <div
               key={t.id}

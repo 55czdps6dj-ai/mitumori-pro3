@@ -128,11 +128,12 @@ export const useEstimateStore = create(
 
         const transportTotal = (state.trucks || []).reduce(
           (sum: number, t: any) => {
+            const distanceOverage = Math.max(Number(t.distance || 0) - 100, 0);
+            const hourOverage = Math.max(Number(t.hours || 0) - 8, 0);
             const lineBase =
-              (Number(t.price || 0) +
-                Number(t.distance || 0) * Number(t.distanceRate || 0) +
-                Number(t.hours || 0) * Number(t.hourRate || 0)) *
-              Number(t.quantity || 0);
+              Number(t.price || 0) * Number(t.quantity || 0) +
+              distanceOverage * Number(t.distanceRate || 0) +
+              hourOverage * Number(t.hourRate || 0);
             return sum + Math.round(lineBase * multiplier);
           },
           0
