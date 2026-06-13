@@ -4,6 +4,7 @@
 import React from 'react';
 import { useEstimateStore } from '../useEstimateStore';
 import { v4 as uuid } from 'uuid';
+import { calculateTruckTotal } from '../calculateEstimateTotals';
 
 /**
  * 京王運輸 引越運賃諸料金表（2020年1月10日改定）
@@ -149,12 +150,7 @@ export default function LaborTab() {
           </button>
         </div>
         {trucks.map((t: any) => {
-          const distanceOverage = Math.max(Number(t.distance || 0) - 100, 0);
-          const hourOverage = Math.max(Number(t.hours || 0) - 8, 0);
-          const lineTotal =
-            Number(t.price || 0) * Number(t.quantity || 0) +
-            distanceOverage * Number(t.distanceRate || 0) +
-            hourOverage * Number(t.hourRate || 0);
+          const lineTotal = calculateTruckTotal(t);
           return (
             <div
               key={t.id}

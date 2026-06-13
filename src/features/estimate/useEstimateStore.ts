@@ -7,6 +7,7 @@ import {
   buildJudgmentResult,
   type VehiclePriceTable,
 } from './store/vehicleJudgment';
+import { calculateEstimateTotals } from './calculateEstimateTotals';
 
 // ==============================
 // 型定義
@@ -116,70 +117,7 @@ const initialMaterials = [
 export const useEstimateStore = create(
   persist(
     (set, get) => {
-      const calculateAll = (state: any) => {
-        const multiplier =
-          state.dateCategory === '繁忙期休日'
-            ? 1.5
-            : state.dateCategory === '繁忙期平日'
-            ? 1.3
-            : state.dateCategory === '休日'
-            ? 1.2
-            : 1.0;
-
-        const transportTotal = (state.trucks || []).reduce(
-          (sum: number, t: any) => {
-            const distanceOverage = Math.max(Number(t.distance || 0) - 100, 0);
-            const hourOverage = Math.max(Number(t.hours || 0) - 8, 0);
-            const lineBase =
-              Number(t.price || 0) * Number(t.quantity || 0) +
-              distanceOverage * Number(t.distanceRate || 0) +
-              hourOverage * Number(t.hourRate || 0);
-            return sum + Math.round(lineBase * multiplier);
-          },
-          0
-        );
-
-        const laborTotal = (state.labors || []).reduce(
-          (sum: number, l: any) => {
-            const base = Number(l.unitPrice || 0) * Number(l.staffCount || 0);
-            const lineBase =
-              l.type === 'hourly' ? base * Number(l.hours || 1) : base;
-            return sum + Math.round(lineBase * multiplier);
-          },
-          0
-        );
-
-        const serviceTotal = (state.services || []).reduce(
-          (sum: number, s: any) =>
-            sum + Number(s.price || 0) * Number(s.quantity || 1),
-          0
-        );
-
-        const baseForDiscount = transportTotal + laborTotal;
-        const rateDiscountAmount = Math.round(
-          baseForDiscount * (state.discountRate / 100)
-        );
-        const fixedDiscountAmount = (state.fixedDiscounts || []).reduce(
-          (sum: number, d: any) => sum + Number(d.price || 0),
-          0
-        );
-        const subtotal =
-          baseForDiscount -
-          rateDiscountAmount +
-          serviceTotal -
-          fixedDiscountAmount;
-
-        return {
-          transportTotal,
-          laborTotal,
-          rateDiscountAmount,
-          serviceTotal,
-          fixedDiscountAmount,
-          subtotal: Math.max(0, subtotal),
-          currentMultiplier: multiplier,
-          totalDiscount: rateDiscountAmount + fixedDiscountAmount,
-        };
-      };
+      const calculateAll = (state: any) => calculateEstimateTotals(state);
 
       return {
         // 👤 顧客情報

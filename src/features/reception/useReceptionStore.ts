@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { create } from 'zustand';
-import { supabase } from '../../lib/supabase';
+import { isSupabaseConfigured, supabase } from '../../lib/supabase';
 
 /**
  * DBの構造とアプリ内の命名規約を変換するマッパー関数
@@ -144,7 +144,7 @@ export const useReceptionStore = create((set, get) => ({
       throw new Error('IDが不足しています');
     }
 
-    if (!supabase.supabaseUrl || supabase.supabaseUrl.includes('undefined')) {
+    if (!isSupabaseConfigured) {
       const configError =
         '【システムエラー】Supabaseの接続情報（URL/KEY）が読み込めていません。.env.local ファイルを確認してください。';
       alert(configError);
@@ -153,12 +153,11 @@ export const useReceptionStore = create((set, get) => ({
 
     const currentAppt = get().appointments.find((a) => a.id === id);
 
-        // ステータスの自動更新ロジック
-        let nextStatus = currentAppt?.status || '見積済み';
-        if (['未対応', '訪問日確定'].includes(nextStatus)) {  // ← 修正
-          nextStatus = '見積済み';
-        }
-    
+    const currentStatus = currentAppt?.status || '未対応';
+    const nextStatus = ['成約', 'キャンセル'].includes(currentStatus)
+      ? currentStatus
+      : '見積済み';
+
 
     // DB送信データの構築
     const dbUpdate = {

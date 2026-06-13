@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { calculateTotalWithTax } from '../calculateEstimateTotals';
 
 type Props = {
   store: any;
@@ -13,7 +14,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
 
   // 税込金額の計算（10%）
   const subtotal = costs?.subtotal || 0;
-  const taxIncluded = Math.round(subtotal * 1.1);
+  const taxIncluded = calculateTotalWithTax(subtotal);
 
   // 見積有効期限の計算（今日から30日後）
   const expiryDate = new Date();
@@ -94,11 +95,11 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
           </div>
         </div>
 
-        {/* 2. お届け資材の最終調整 */}
+        {/* 2. サービス資材の最終調整 */}
         <div className="bg-white border-2 border-slate-200 rounded-lg shadow-sm overflow-hidden">
           <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
             <h4 className="font-black text-slate-700 flex items-center gap-2 text-sm uppercase">
-              <span className="text-blue-600">📦</span> お届け資材の最終数量
+              <span className="text-blue-600">📦</span> サービス資材の最終数量
             </h4>
           </div>
 

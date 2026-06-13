@@ -39,19 +39,19 @@ export default function WorkConditionTab({ store }: Props) {
         </div>
       </section>
 
-      {/* 2. 資材明細・数量入力 */}
+      {/* 2. サービス資材・数量入力 */}
       <section className="space-y-4">
         <h3 className="text-lg font-black text-[#003366] flex items-center gap-2 border-b-2 border-slate-100 pb-2">
           <span className="w-2 h-6 bg-[#003366]"></span>
-          荷造梱包資材
+          サービス資材
         </h3>
         <div className="bg-white border-2 border-slate-100 overflow-hidden shadow-sm">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-4 text-[10px] font-black text-slate-400 uppercase">品名 / 単価</th>
+                <th className="p-4 text-[10px] font-black text-slate-400 uppercase">品名 / 参考単価</th>
                 <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-center">数量</th>
-                <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-right">小計</th>
+                <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-right">参考額</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 font-bold">
@@ -82,7 +82,7 @@ export default function WorkConditionTab({ store }: Props) {
             </tbody>
           </table>
           <div className="bg-[#003366] text-white p-4 flex justify-between items-center">
-            <span className="text-[10px] font-black uppercase opacity-70">Material Total</span>
+            <span className="text-[10px] font-black uppercase opacity-70">Service Material Reference</span>
             <span className="font-mono font-black text-xl">
               ¥{materials.reduce((sum: number, m: any) => sum + (m.unitPrice * m.quantity), 0).toLocaleString()}
             </span>

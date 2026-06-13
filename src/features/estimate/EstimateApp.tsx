@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useEstimateStore } from './useEstimateStore';
 import { useReceptionStore } from '../reception/useReceptionStore';
+import { calculateTaxAmount, calculateTotalWithTax } from './calculateEstimateTotals';
 import CustomerTab from './tabs/CustomerTab';
 import HouseholdTab from './tabs/HouseholdTab';
 import LaborTab from './tabs/LaborTab';
@@ -226,8 +227,8 @@ export default function EstimateApp({
       0
     );
     const subtotal = Number(costs?.subtotal || 0);
-    const tax = Math.floor(subtotal * 0.1);
-    const total = subtotal + tax;
+    const tax = calculateTaxAmount(subtotal);
+    const total = calculateTotalWithTax(subtotal);
 
     const serviceRows = (services || [])
       .filter((s) => Number(s.price) * Number(s.quantity || 1) > 0)
@@ -327,11 +328,11 @@ export default function EstimateApp({
               <tbody>
                 <tr><td>基本車両運賃</td><td style="text-align:right;">¥${transportTotal.toLocaleString()}</td></tr>
                 <tr><td>作業人件費</td><td style="text-align:right;">¥${laborTotal.toLocaleString()}</td></tr>
-                <tr><td>梱包資材費</td><td style="text-align:right;">¥${materialTotal.toLocaleString()}</td></tr>
                 ${serviceRows}
                 ${discountRows.join('')}
                 <tr style="font-weight:bold;background:#fafafa;"><td>小計</td><td style="text-align:right;">¥${subtotal.toLocaleString()}</td></tr>
                 <tr><td>消費税(10%)</td><td style="text-align:right;">¥${tax.toLocaleString()}</td></tr>
+                <tr><td>サービス資材参考額（請求対象外）</td><td style="text-align:right;">¥${materialTotal.toLocaleString()}</td></tr>
               </tbody>
             </table>
             <table>

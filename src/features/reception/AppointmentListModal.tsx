@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { useReceptionStore } from './useReceptionStore';
+import { calculateTotalWithTax } from '../estimate/calculateEstimateTotals';
 
 const TIME_SLOTS = [
   { id: '①', label: '9:00〜11:00' },
@@ -326,7 +327,7 @@ export const AppointmentListModal = ({
       0
     );
     const subtotal = Number(costs.subtotal || 0);
-    const total = subtotal + Math.floor(subtotal * 0.1);
+    const total = calculateTotalWithTax(subtotal);
 
     return (
       <div className="rounded-2xl overflow-hidden border border-emerald-200 shadow-sm">

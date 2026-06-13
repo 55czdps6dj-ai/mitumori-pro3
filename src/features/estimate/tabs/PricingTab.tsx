@@ -1,5 +1,7 @@
 "use client";
 
+import { calculateTaxAmount, calculateTotalWithTax } from '../calculateEstimateTotals';
+
 /**
  * 料金タブ：最終調整・割引・見積サマリー
  * * 機能：
@@ -18,9 +20,8 @@ export default function PricingTab({ store }: { store: any }) {
   const basePrice = costs.transportTotal + costs.laborTotal;
   
   // 消費税設定
-  const taxRate = 0.1;
-  const taxAmount = Math.round(costs.subtotal * taxRate);
-  const totalWithTax = costs.subtotal + taxAmount;
+  const taxAmount = calculateTaxAmount(costs.subtotal);
+  const totalWithTax = calculateTotalWithTax(costs.subtotal);
 
   return (
     <div className="space-y-6 pb-24 px-2 animate-in slide-in-from-bottom-4 duration-500">
