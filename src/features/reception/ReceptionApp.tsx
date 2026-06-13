@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useReceptionStore } from './useReceptionStore';
 import type { Appointment, AppointmentStatus } from './useReceptionStore';
-import CalendarView from './CalendarView';
-import AppointmentForm from './AppointmentForm';
-import AppointmentListModal from './AppointmentListModal';
+import { CalendarView } from './CalendarView';
+import { AppointmentForm } from './AppointmentForm';
+import { AppointmentListModal } from './AppointmentListModal';
 import StaffSettingsPanel from '../staff/StaffSettingsPanel';
 
 // ==============================
@@ -451,12 +451,17 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
         <div className="flex-1 overflow-y-auto p-3">
           {activeTab === 'calendar' ? (
             <CalendarView
+              currentMonth={new Date(year, month, 1)}
+              onPrevMonth={handlePrevMonth}
+              onNextMonth={handleNextMonth}
               appointments={appointments}
-              year={year}
-              month={month}
               viewMode={viewMode}
-              onSelectDate={handleSelectDate}
-              selectedDate={selectedDate}
+              setViewMode={setViewMode}
+              formData={{
+                estimateDate: selectedDate || '',
+                moveDate: selectedDate || '',
+              }}
+              onDateClick={handleSelectDate}
             />
           ) : (
             <AppointmentForm onSearch={handleSearch} />
@@ -467,12 +472,13 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
       {/* 案件リストモーダル */}
       {showListModal && selectedDate && (
         <AppointmentListModal
+          date={selectedDate}
           appointments={selectedAppts}
           onClose={() => {
             setShowListModal(false);
             setSelectedDate(null);
           }}
-          onStartEstimate={(appt) => {
+          onNavigateToEstimate={(appt) => {
             setShowListModal(false);
             onStartEstimate(appt);
           }}

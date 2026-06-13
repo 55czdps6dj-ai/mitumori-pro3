@@ -456,7 +456,7 @@ export const AppointmentListModal = ({
   const contractedAppts = appointments.filter((a) => a.status === '成約');
   const otherAppts = appointments.filter((a) => a.status !== '成約');
   const modalTitle =
-    viewMode === 'move'
+    viewMode === 'moving'
       ? `🚛 ${date.replace(/-/g, '/')} の引越案件`
       : `${date.replace(/-/g, '/')} の案件詳細`;
 
@@ -475,7 +475,7 @@ export const AppointmentListModal = ({
           {/* ヘッダー */}
           <div
             className={`p-6 text-white flex justify-between items-center shadow-lg ${
-              viewMode === 'move' ? 'bg-blue-700' : 'bg-[#003366]'
+              viewMode === 'moving' ? 'bg-blue-700' : 'bg-[#003366]'
             }`}
           >
             <div>
@@ -483,7 +483,7 @@ export const AppointmentListModal = ({
                 {modalTitle}
               </h3>
               <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest">
-                {viewMode === 'move'
+                {viewMode === 'moving'
                   ? `成約: ${contractedAppts.length}件 / 計: ${appointments.length}件`
                   : `Status Management (${appointments.length} items)`}
               </p>
@@ -503,7 +503,7 @@ export const AppointmentListModal = ({
                 <span className="text-5xl mb-4">📅</span>
                 <p className="font-black text-sm">この日の案件はありません</p>
               </div>
-            ) : viewMode === 'move' ? (
+            ) : viewMode === 'moving' ? (
               /* ══ 引越しタブ ══ */
               <>
                 {contractedAppts.length > 0 && (

@@ -5,7 +5,7 @@ import EstimateApp from '../features/estimate/EstimateApp';
 import ReceptionApp from '../features/reception/ReceptionApp';
 
 export default function Home() {
-  const [mode, setMode] = useState<'reception' | 'estimate' | null>(null);
+  const [mode, setMode] = useState<'reception' | 'estimate'>('reception');
   const [passedCustomerData, setPassedCustomerData] = useState(null);
   const [estimateBackTo, setEstimateBackTo] = useState<'reception' | 'menu'>(
     'reception'
@@ -26,17 +26,6 @@ export default function Home() {
     setMode('estimate');
   };
 
-  // 初期化中（null）は何も表示しない（チラつき防止）
-  if (mode === null) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white font-black text-sm animate-pulse">
-          Loading...
-        </div>
-      </div>
-    );
-  }
-
   // ── 受付・配車管理モード ──────────────────────────────
   if (mode === 'reception') {
     return (
@@ -53,7 +42,7 @@ export default function Home() {
           <span className="text-base">📝</span>
           現場見積
         </button>
-        <ReceptionApp onNavigateToEstimate={handleTransitionToEstimate} />
+        <ReceptionApp onStartEstimate={handleTransitionToEstimate} />
       </main>
     );
   }

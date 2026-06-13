@@ -8,7 +8,7 @@ export const CalendarView = ({
   appointments = [],
   viewMode,
   setViewMode,
-  formData,
+  formData = {},
   onDateClick,
   getTruckStock = () => 0,
 }: any) => {
@@ -88,9 +88,9 @@ export const CalendarView = ({
             📝 見積
           </button>
           <button
-            onClick={() => setViewMode('move')}
+            onClick={() => setViewMode('moving')}
             className={`px-8 py-3 rounded-xl font-black text-sm transition-all ${
-              viewMode === 'move'
+              viewMode === 'moving'
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'text-slate-400'
             }`}
@@ -205,7 +205,7 @@ export const CalendarView = ({
                 )}
 
                 {/* ── 引越タブ ── */}
-                {viewMode === 'move' && (
+                {viewMode === 'moving' && (
                   <div className="flex-1 flex flex-col justify-start gap-0.5 pt-0.5 overflow-hidden">
                     {dayAppts.length === 0 ? (
                       <div className="flex-1 flex items-center justify-center">
