@@ -100,15 +100,10 @@ const initialMaterials = [
     unitPrice: 300,
     step: 1,
   },
-  {
-    id: 'm5',
-    name: 'ハンガーBOX',
-    quantity: 0,
-    price: 0,
-    unitPrice: 0,
-    step: 1,
-  },
 ];
+
+const normalizeMaterials = (materials: any[] = []) =>
+  materials.filter((m) => m?.name !== 'ハンガーBOX');
 
 // ==============================
 // ストア
@@ -149,7 +144,14 @@ export const useEstimateStore = create(
               costs: calculateAll({ ...s, materials: newMaterials }),
             };
           }),
-        setMaterials: (mats: any[]) => set({ materials: mats }),
+        setMaterials: (mats: any[]) =>
+          set((s: any) => {
+            const newMaterials = normalizeMaterials(mats);
+            return {
+              materials: newMaterials,
+              costs: calculateAll({ ...s, materials: newMaterials }),
+            };
+          }),
 
         // 📅 日程区分
         dateCategory: '平日',

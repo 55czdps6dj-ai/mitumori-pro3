@@ -5,6 +5,10 @@ type Props = { store: any };
 
 export default function WorkConditionTab({ store }: Props) {
   const { workConditions, updateWorkCondition, materials, updateMaterialQty } = store;
+  const visibleMaterials = (materials || []).filter(
+    (m: any) => m.name !== "ハンガーBOX"
+  );
+  const getStep = (m: any) => Number(m.step || 1);
 
   return (
     <div className="p-4 max-w-3xl mx-auto pb-20 space-y-8 animate-in fade-in duration-500">
@@ -49,44 +53,43 @@ export default function WorkConditionTab({ store }: Props) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-4 text-[10px] font-black text-slate-400 uppercase">品名 / 参考単価</th>
+                <th className="p-4 text-[10px] font-black text-slate-400 uppercase">品名</th>
                 <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-center">数量</th>
-                <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-right">参考額</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 font-bold">
-              {materials.map((m: any) => (
+              {visibleMaterials.map((m: any) => (
                 <tr key={m.id} className="hover:bg-slate-50 transition-colors">
                   <td className="p-4">
                     <div className="text-sm text-slate-800">{m.name}</div>
-                    <div className="text-[10px] text-slate-400 font-mono italic">@¥{m.unitPrice}</div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-3">
                       <button 
-                        onClick={() => updateMaterialQty(m.id, m.quantity - 1)}
+                        onClick={() =>
+                          updateMaterialQty(
+                            m.id,
+                            Math.max(0, Number(m.quantity || 0) - getStep(m))
+                          )
+                        }
                         className="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center hover:bg-slate-100 active:scale-90 transition-all"
                       >-</button>
                       <span className="w-8 text-center font-mono text-lg">{m.quantity}</span>
                       <button 
-                        onClick={() => updateMaterialQty(m.id, m.quantity + 1)}
+                        onClick={() =>
+                          updateMaterialQty(
+                            m.id,
+                            Number(m.quantity || 0) + getStep(m)
+                          )
+                        }
                         className="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center hover:bg-slate-100 active:scale-90 transition-all"
                       >+</button>
                     </div>
-                  </td>
-                  <td className="p-4 text-right font-mono text-[#003366]">
-                    ¥{(m.unitPrice * m.quantity).toLocaleString()}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="bg-[#003366] text-white p-4 flex justify-between items-center">
-            <span className="text-[10px] font-black uppercase opacity-70">Service Material Reference</span>
-            <span className="font-mono font-black text-xl">
-              ¥{materials.reduce((sum: number, m: any) => sum + (m.unitPrice * m.quantity), 0).toLocaleString()}
-            </span>
-          </div>
         </div>
       </section>
 

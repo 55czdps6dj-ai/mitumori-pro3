@@ -48,13 +48,6 @@ export default function PricingTab({ store }: { store: any }) {
         </div>
 
         <div className="space-y-4">
-          <input 
-            type="range" min="0" max="20" step="1" 
-            value={discountRate} 
-            onChange={(e) => setDiscountRate(Number(e.target.value))}
-            className="w-full h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
-          />
-          
           <div className="bg-blue-600 text-white p-4 rounded-xl shadow-inner relative overflow-hidden">
             <div className="flex justify-between items-center relative z-10">
               <span className="text-xs font-bold opacity-80 italic underline decoration-blue-300 uppercase">Discount Amount</span>

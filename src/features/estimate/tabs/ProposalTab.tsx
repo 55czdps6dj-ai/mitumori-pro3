@@ -11,6 +11,10 @@ type Props = {
 
 export default function ProposalTab({ store, onPrintClick }: Props) {
   const { costs, customer, updateCustomer, materials, updateMaterial } = store;
+  const visibleMaterials = (materials || []).filter(
+    (m: any) => m.name !== 'ハンガーBOX'
+  );
+  const getStep = (m: any) => Number(m.step || 1);
 
   // 税込金額の計算（10%）
   const subtotal = costs?.subtotal || 0;
@@ -104,7 +108,7 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
           </div>
 
           <div className="divide-y divide-slate-100">
-            {(materials || []).map((m: any) => (
+            {visibleMaterials.map((m: any) => (
               <div
                 key={m.id}
                 className="flex justify-between items-center px-6 py-3 hover:bg-slate-50 transition-colors"
@@ -116,7 +120,10 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
                 <div className="flex items-center gap-4 bg-white px-2 py-1 rounded-xl border border-slate-200 shadow-sm">
                   <button
                     onClick={() =>
-                      updateMaterial(m.id, Math.max(0, m.quantity - 1))
+                      updateMaterial(
+                        m.id,
+                        Math.max(0, Number(m.quantity || 0) - getStep(m))
+                      )
                     }
                     className={`w-10 h-10 flex items-center justify-center font-black text-xl transition-all rounded-lg ${
                       m.quantity > 0
@@ -138,7 +145,9 @@ export default function ProposalTab({ store, onPrintClick }: Props) {
                   </div>
 
                   <button
-                    onClick={() => updateMaterial(m.id, m.quantity + 1)}
+                    onClick={() =>
+                      updateMaterial(m.id, Number(m.quantity || 0) + getStep(m))
+                    }
                     className="w-10 h-10 flex items-center justify-center font-black text-xl text-blue-600 hover:bg-blue-50 transition-all rounded-lg"
                   >
                     ＋

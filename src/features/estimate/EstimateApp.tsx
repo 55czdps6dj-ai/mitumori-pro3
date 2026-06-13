@@ -215,17 +215,12 @@ export default function EstimateApp({
       labors,
       trucks,
       items,
-      materials,
       services,
       fixedDiscounts,
       discountRate,
     } = store;
     const transportTotal = Number(costs?.transportTotal || 0);
     const laborTotal = Number(costs?.laborTotal || 0);
-    const materialTotal = (materials || []).reduce(
-      (sum, m) => sum + Number(m.price || 0) * Number(m.quantity || 0),
-      0
-    );
     const subtotal = Number(costs?.subtotal || 0);
     const tax = calculateTaxAmount(subtotal);
     const total = calculateTotalWithTax(subtotal);
@@ -332,7 +327,6 @@ export default function EstimateApp({
                 ${discountRows.join('')}
                 <tr style="font-weight:bold;background:#fafafa;"><td>小計</td><td style="text-align:right;">¥${subtotal.toLocaleString()}</td></tr>
                 <tr><td>消費税(10%)</td><td style="text-align:right;">¥${tax.toLocaleString()}</td></tr>
-                <tr><td>サービス資材参考額（請求対象外）</td><td style="text-align:right;">¥${materialTotal.toLocaleString()}</td></tr>
               </tbody>
             </table>
             <table>
