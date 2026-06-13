@@ -333,14 +333,7 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
     <div className="flex flex-col h-screen bg-slate-100 overflow-hidden">
       {/* ヘッダー */}
       <header className="bg-[#003366] text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-md z-20">
-        <div className="flex items-center gap-2">
-          <div className="bg-white text-[#003366] px-1.5 py-0.5 font-black italic text-xs rounded">
-            KEIO
-          </div>
-          <h1 className="font-black text-sm tracking-tight">
-            受付管理システム
-          </h1>
-        </div>
+        <div />
         <div className="flex items-center gap-2">
           {isLoading && (
             <span className="text-[10px] text-blue-200 animate-pulse">

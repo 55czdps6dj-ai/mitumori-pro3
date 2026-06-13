@@ -395,14 +395,6 @@ export default function EstimateApp({
           >
             ⬅ 戻る
           </button>
-          <div className="flex items-center gap-2">
-            <div className="bg-white text-[#003366] px-1.5 py-0.5 font-black italic text-xs rounded">
-              KEIO
-            </div>
-            <h1 className="font-black text-sm uppercase tracking-tight">
-              引越見積システム v3.5
-            </h1>
-          </div>
         </div>
         <div className="flex items-center gap-2">
           <button

@@ -4,6 +4,8 @@ import { create } from 'zustand';
 // 共通の接続設定済みの supabase クライアントをインポートしてエラーを根本解決
 import { supabase } from '../../lib/supabase';
 
+const LOCAL_STAFF_KEY = 'mitumori-staff-list';
+
 // ==============================
 // 型定義
 // ==============================
@@ -26,6 +28,40 @@ function mapToApp(row: any): Staff {
     isActive: row.is_active ?? true,
     createdAt: row.created_at || '',
   };
+}
+
+function createLocalStaff(name: string, sortOrder: number): Staff {
+  return {
+    id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    sortOrder,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function readLocalStaff(): Staff[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(LOCAL_STAFF_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalStaff(staffList: Staff[]) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(LOCAL_STAFF_KEY, JSON.stringify(staffList));
+}
+
+function mergeStaffLists(primary: Staff[], fallback: Staff[]) {
+  const names = new Set(primary.map((staff) => staff.name));
+  return [
+    ...primary,
+    ...fallback.filter((staff) => staff.isActive && !names.has(staff.name)),
+  ].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 // ==============================
@@ -62,10 +98,14 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      set({ staffList: (data || []).map(mapToApp), isLoading: false });
+      const remoteStaff = (data || []).map(mapToApp);
+      set({
+        staffList: mergeStaffLists(remoteStaff, readLocalStaff()),
+        isLoading: false,
+      });
     } catch (err: any) {
       console.error('fetchStaff error:', err);
-      set({ error: err.message, isLoading: false });
+      set({ staffList: readLocalStaff(), error: err.message, isLoading: false });
     }
   },
 
@@ -96,7 +136,16 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
       set((s) => ({ staffList: [...s.staffList, newStaff] }));
     } catch (err: any) {
       console.error('addStaff error:', err);
-      throw err;
+      const currentList = get().staffList;
+      if (currentList.some((staff) => staff.name === trimmed)) return;
+      const maxOrder = currentList.reduce(
+        (max, s) => Math.max(max, s.sortOrder),
+        -1
+      );
+      const newStaff = createLocalStaff(trimmed, maxOrder + 1);
+      const newList = [...currentList, newStaff];
+      writeLocalStaff(newList.filter((staff) => staff.id.startsWith('local-')));
+      set({ staffList: newList, error: err.message });
     }
   },
 
@@ -123,7 +172,11 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
       }));
     } catch (err: any) {
       console.error('updateStaff error:', err);
-      throw err;
+      const newList = get().staffList.map((st) =>
+        st.id === id ? { ...st, name: trimmed } : st
+      );
+      writeLocalStaff(newList.filter((staff) => staff.id.startsWith('local-')));
+      set({ staffList: newList, error: err.message });
     }
   },
 
@@ -144,7 +197,9 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
       }));
     } catch (err: any) {
       console.error('deleteStaff error:', err);
-      throw err;
+      const newList = get().staffList.filter((st) => st.id !== id);
+      writeLocalStaff(newList.filter((staff) => staff.id.startsWith('local-')));
+      set({ staffList: newList, error: err.message });
     }
   },
 
@@ -183,7 +238,12 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
       set({ staffList: newList });
     } catch (err: any) {
       console.error('reorderStaff error:', err);
-      throw err;
+      const newList = [...list];
+      newList[index] = { ...current, sortOrder: swap.sortOrder };
+      newList[swapIndex] = { ...swap, sortOrder: current.sortOrder };
+      newList.sort((a, b) => a.sortOrder - b.sortOrder);
+      writeLocalStaff(newList.filter((staff) => staff.id.startsWith('local-')));
+      set({ staffList: newList, error: err.message });
     }
   },
 }));
