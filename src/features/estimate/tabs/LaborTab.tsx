@@ -29,6 +29,9 @@ const PRICE_MASTER = {
   },
 };
 
+const PACKING_WORKER_ROLE = '梱包作業員';
+const PACKING_WORKER_PRICE = 25000;
+
 export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boolean } = {}) {
   const store = useEstimateStore();
   const {
@@ -70,6 +73,17 @@ export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boo
     });
   };
 
+  const handleAddPackingLabor = () => {
+    addLaborItem({
+      id: uuid(),
+      role: PACKING_WORKER_ROLE,
+      staffCount: 1,
+      unitPrice: PACKING_WORKER_PRICE,
+      type: 'allDay',
+      hours: 8,
+    });
+  };
+
   // 🚚 車両追加
   const handleAddTruck = () => {
     const category = dateCategory || '平日';
@@ -95,8 +109,22 @@ export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boo
       updateTruck(t.id, { price: newPrice });
     });
     labors.forEach((l: any) => {
-      updateLaborItem(l.id, 'unitPrice', master.worker);
+      if (l.role !== PACKING_WORKER_ROLE) {
+        updateLaborItem(l.id, 'unitPrice', master.worker);
+      }
     });
+  };
+
+  const handleLaborRoleChange = (labor: any, role: string) => {
+    const category = dateCategory || '平日';
+    updateLaborItem(labor.id, 'role', role);
+    updateLaborItem(
+      labor.id,
+      'unitPrice',
+      role === PACKING_WORKER_ROLE
+        ? PACKING_WORKER_PRICE
+        : PRICE_MASTER[category as keyof typeof PRICE_MASTER].worker
+    );
   };
 
   const handleTruckTypeChange = (id: string, type: string) => {
@@ -229,12 +257,20 @@ export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boo
           <h3 className="font-black text-orange-600">
             👤 作業スタッフ・人件費
           </h3>
-          <button
-            onClick={handleAddLabor}
-            className="text-[10px] bg-orange-500 text-white px-3 py-1 rounded font-bold"
-          >
-            + 追加
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddLabor}
+              className="text-[10px] bg-orange-500 text-white px-3 py-1 rounded font-bold"
+            >
+              + 作業員
+            </button>
+            <button
+              onClick={handleAddPackingLabor}
+              className="text-[10px] bg-slate-700 text-white px-3 py-1 rounded font-bold"
+            >
+              + 梱包作業員
+            </button>
+          </div>
         </div>
         {labors.map((l: any) => (
           <div
@@ -242,6 +278,14 @@ export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boo
             className="bg-orange-50/30 p-4 rounded mb-3 border border-orange-100"
           >
             <div className="flex gap-2 mb-3">
+              <select
+                value={l.role || '作業員'}
+                onChange={(e) => handleLaborRoleChange(l, e.target.value)}
+                className="flex-1 p-2 text-xs font-black border rounded bg-white"
+              >
+                <option value="作業員">作業員</option>
+                <option value={PACKING_WORKER_ROLE}>梱包作業員</option>
+              </select>
               <select
                 value={l.type}
                 onChange={(e) => updateLaborItem(l.id, 'type', e.target.value)}
