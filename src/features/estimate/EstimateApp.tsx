@@ -6,7 +6,7 @@ import { useReceptionStore } from '../reception/useReceptionStore';
 import { calculateTaxAmount, calculateTotalWithTax } from './calculateEstimateTotals';
 import CustomerTab from './tabs/CustomerTab';
 import HouseholdTab from './tabs/HouseholdTab';
-import LaborTab from './tabs/LaborTab';
+import WorkConditionTab from './tabs/WorkConditionTab';
 import PricingTab from './tabs/PricingTab';
 import ProposalTab from './tabs/ProposalTab';
 
@@ -17,7 +17,7 @@ import ProposalTab from './tabs/ProposalTab';
 const TABS = [
   { id: 'customer', label: '顧客', icon: '👤' },
   { id: 'household', label: '家財', icon: '📦' },
-  { id: 'labor', label: '作業', icon: '🛠' },
+  { id: 'labor', label: '作業条件', icon: '🛠' },
   { id: 'pricing', label: '料金', icon: '💰' },
   { id: 'proposal', label: '提案', icon: '📄' },
 ] as const;
@@ -474,11 +474,7 @@ export default function EstimateApp({
         <div className="max-w-screen-xl mx-auto pb-24">
           {activeTab === 'customer' && <CustomerTab store={store} />}
           {activeTab === 'household' && <HouseholdTab store={store} />}
-          {activeTab === 'labor' && (
-            <div className="p-4">
-              <LaborTab store={store} />
-            </div>
-          )}
+          {activeTab === 'labor' && <WorkConditionTab store={store} />}
           {activeTab === 'pricing' && <PricingTab store={store} />}
           {activeTab === 'proposal' && (
             <ProposalTab store={store} onPrintClick={handlePrint} />

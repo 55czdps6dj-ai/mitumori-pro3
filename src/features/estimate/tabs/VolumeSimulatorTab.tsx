@@ -114,13 +114,13 @@ export default function VolumeSimulatorTab({ store }: Props) {
       `【シミュレーター結果を見積に反映】\n\n` +
         `推奨車両: ${judgment.label} × ${judgment.quantity}台\n` +
         `合計ポイント: ${simTotalPt}P\n\n` +
-        `現在の「作業」タブの車両設定を上書きします。よろしいですか？`
+        `現在の「料金」タブの車両設定を上書きします。よろしいですか？`
     );
     if (!confirmed) return;
     applySimulatorResult(simTotalPt, dateCategory);
     setIsApplied(true);
     alert(
-      `✅ 反映完了！\n「作業」タブの車両設定に ${judgment.label} × ${judgment.quantity}台 を設定しました。`
+      `✅ 反映完了！\n「料金」タブの車両設定に ${judgment.label} × ${judgment.quantity}台 を設定しました。`
     );
   }, [judgment, simTotalPt, dateCategory, applySimulatorResult]);
 

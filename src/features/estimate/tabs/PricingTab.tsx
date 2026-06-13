@@ -1,6 +1,7 @@
 "use client";
 
 import { calculateTaxAmount, calculateTotalWithTax } from '../calculateEstimateTotals';
+import LaborTab from './LaborTab';
 
 /**
  * 料金タブ：最終調整・割引・見積サマリー
@@ -25,6 +26,7 @@ export default function PricingTab({ store }: { store: any }) {
 
   return (
     <div className="space-y-6 pb-24 px-2 animate-in slide-in-from-bottom-4 duration-500">
+      <LaborTab showDiscounts={false} />
       
       {/* 📉 ① 基本料金 割引設定セクション */}
       <section className="bg-white p-6 shadow-md border-t-4 border-blue-500 rounded-lg">

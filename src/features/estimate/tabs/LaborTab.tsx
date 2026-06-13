@@ -29,7 +29,7 @@ const PRICE_MASTER = {
   },
 };
 
-export default function LaborTab() {
+export default function LaborTab({ showDiscounts = true }: { showDiscounts?: boolean } = {}) {
   const store = useEstimateStore();
   const {
     trucks,
@@ -329,6 +329,7 @@ export default function LaborTab() {
       </section>
 
       {/* 🉐 4. 割引設定 */}
+      {showDiscounts && (
       <section className="bg-white p-5 shadow-md border-t-4 border-emerald-500 rounded-xl">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-lg">🉐</span>
@@ -409,6 +410,7 @@ export default function LaborTab() {
           </div>
         </div>
       </section>
+      )}
 
       {/* 💡 CSSの注入（スピンボタンを非表示にするため） */}
       <style jsx>{`
