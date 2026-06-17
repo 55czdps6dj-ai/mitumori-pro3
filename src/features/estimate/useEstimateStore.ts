@@ -538,7 +538,17 @@ export const useEstimateStore = create(
       name: 'estimate-storage',
       version: 2,
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (_state: any, error: any) => {
+        if (error && typeof window !== 'undefined') {
+          console.error('estimate-storage rehydrate failed:', error);
+          localStorage.removeItem('estimate-storage');
+        }
+      },
       migrate: (persistedState: any, version: number) => {
+        if (!persistedState || typeof persistedState !== 'object') {
+          return persistedState;
+        }
+
         if (
           version < 2 &&
           persistedState?.customer?.estimator === '京王 太郎'
