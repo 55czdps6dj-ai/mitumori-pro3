@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import EstimateApp from '../features/estimate/EstimateApp';
 import ReceptionApp from '../features/reception/ReceptionApp';
+import { logout } from '../features/auth/logout';
 
 export default function Home() {
   const [mode, setMode] = useState<'reception' | 'estimate'>('reception');
@@ -30,6 +31,12 @@ export default function Home() {
   if (mode === 'reception') {
     return (
       <main className="min-h-screen bg-white relative">
+        <button
+          onClick={logout}
+          className="fixed top-3 right-3 z-[120] bg-slate-800/80 hover:bg-slate-900 text-white px-3 py-2 rounded-lg shadow-lg font-black text-[10px] transition"
+        >
+          ログアウト
+        </button>
         {/* 現場見積へ切替ボタン（右下固定） */}
         <button
           onClick={() => {
@@ -51,6 +58,12 @@ export default function Home() {
   if (mode === 'estimate') {
     return (
       <main className="min-h-screen bg-gray-50 relative">
+        <button
+          onClick={logout}
+          className="fixed top-3 right-3 z-[120] bg-slate-800/80 hover:bg-slate-900 text-white px-3 py-2 rounded-lg shadow-lg font-black text-[10px] transition"
+        >
+          ログアウト
+        </button>
         <EstimateApp
           initialData={passedCustomerData}
           onBack={() => {
