@@ -130,11 +130,12 @@ export const CalendarView = ({
               '0'
             )}-${String(day).padStart(2, '0')}`;
 
-            const dayAppts = (appointments || []).filter((a) =>
-              viewMode === 'estimate'
+            const dayAppts = (appointments || []).filter((a) => {
+              if (!a) return false;
+              return viewMode === 'estimate'
                 ? a.estimateDate === dateStr
-                : a.moveDate === dateStr
-            );
+                : a.moveDate === dateStr;
+            });
 
             const contractedAppts = dayAppts.filter((a) => a.status === '成約');
             const otherAppts = dayAppts.filter((a) => a.status !== '成約');

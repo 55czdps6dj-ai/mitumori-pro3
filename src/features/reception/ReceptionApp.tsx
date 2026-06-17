@@ -235,6 +235,7 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
   const selectedAppts = React.useMemo(() => {
     if (!selectedDate) return [];
     return appointments.filter((a) => {
+      if (!a) return false;
       const dateKey =
         viewMode === 'moving'
           ? a.moveDate?.substring(0, 10)
@@ -265,6 +266,7 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
       const kw = keyword.toLowerCase();
 
       const results = appointments.filter((a) => {
+        if (!a) return false;
         // フリーワード検索（氏名・電話・住所）
         if (kw) {
           const target = [
@@ -310,6 +312,7 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
 
   const monthlyAppts = React.useMemo(() => {
     return appointments.filter((a) => {
+      if (!a) return false;
       const dateKey =
         viewMode === 'moving'
           ? a.moveDate?.substring(0, 7)
@@ -321,7 +324,8 @@ export default function ReceptionApp({ onStartEstimate }: ReceptionAppProps) {
   const statusCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     monthlyAppts.forEach((a) => {
-      counts[a.status] = (counts[a.status] || 0) + 1;
+      const status = a?.status || '未対応';
+      counts[status] = (counts[status] || 0) + 1;
     });
     return counts;
   }, [monthlyAppts]);

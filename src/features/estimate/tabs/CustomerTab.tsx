@@ -74,10 +74,12 @@ const SelectField = ({ label, value, onChange, options, placeholder }: any) => (
 export default function CustomerTab({ store }: { store: any }) {
   const { customer, setCustomer } = store;
   const { staffList, fetchStaff } = useStaffStore();
-  const staffOptions = staffList.map((staff: any) => ({
-    value: staff.name,
-    label: staff.name,
-  }));
+  const staffOptions = (staffList || [])
+    .filter((staff: any) => staff?.name)
+    .map((staff: any) => ({
+      value: staff.name,
+      label: staff.name,
+    }));
   const hasCurrentEstimator =
     customer?.estimator &&
     !staffOptions.some((option: any) => option.value === customer.estimator);

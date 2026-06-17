@@ -7,18 +7,22 @@ import { isSupabaseConfigured, supabase } from '../../lib/supabase';
  */
 const mapToApp = (item) => ({
   ...item,
-  estimateDate: item.estimate_date,
-  estimateSlot: item.estimate_slot,
-  estimateTime: item.estimate_time || '',
-  estimateTimeMode: item.estimate_time_mode || 'slot',
-  moveDate: item.move_date,
-  moveTime: item.move_time,
-  fromAddress: item.from_address,
-  fromEV: item.from_ev,
-  toAddress: item.to_address,
-  toEV: item.to_ev,
-  truckType: item.truck_type,
-  estimateData: item.estimate_data || {},
+  id: item?.id,
+  name: item?.name || '名称未設定',
+  phone: item?.phone || '',
+  status: item?.status || '未対応',
+  estimateDate: item?.estimate_date,
+  estimateSlot: item?.estimate_slot,
+  estimateTime: item?.estimate_time || '',
+  estimateTimeMode: item?.estimate_time_mode || 'slot',
+  moveDate: item?.move_date,
+  moveTime: item?.move_time,
+  fromAddress: item?.from_address || '',
+  fromEV: item?.from_ev,
+  toAddress: item?.to_address || '',
+  toEV: item?.to_ev,
+  truckType: item?.truck_type,
+  estimateData: item?.estimate_data || {},
 });
 
 export const useReceptionStore = create((set, get) => ({
@@ -37,7 +41,7 @@ export const useReceptionStore = create((set, get) => ({
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      set({ appointments: (data || []).map(mapToApp) });
+      set({ appointments: (data || []).filter(Boolean).map(mapToApp) });
     } catch (error) {
       console.error('Fetch error:', error);
     } finally {

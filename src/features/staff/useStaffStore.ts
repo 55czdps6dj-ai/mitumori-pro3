@@ -45,8 +45,20 @@ function readLocalStaff(): Staff[] {
   try {
     const raw = window.localStorage.getItem(LOCAL_STAFF_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((staff) => staff && typeof staff === 'object')
+      .map((staff, index) => ({
+        id: String(staff.id || `local-recovered-${index}`),
+        name: String(staff.name || '').trim(),
+        sortOrder: Number(staff.sortOrder ?? index),
+        isActive: staff.isActive ?? true,
+        createdAt: staff.createdAt || '',
+      }))
+      .filter((staff) => staff.name);
   } catch {
+    window.localStorage.removeItem(LOCAL_STAFF_KEY);
     return [];
   }
 }
@@ -57,10 +69,12 @@ function writeLocalStaff(staffList: Staff[]) {
 }
 
 function mergeStaffLists(primary: Staff[], fallback: Staff[]) {
-  const names = new Set(primary.map((staff) => staff.name));
+  const safePrimary = (primary || []).filter((staff) => staff?.name);
+  const safeFallback = (fallback || []).filter((staff) => staff?.name);
+  const names = new Set(safePrimary.map((staff) => staff.name));
   return [
-    ...primary,
-    ...fallback.filter((staff) => staff.isActive && !names.has(staff.name)),
+    ...safePrimary,
+    ...safeFallback.filter((staff) => staff.isActive && !names.has(staff.name)),
   ].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
@@ -98,7 +112,9 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      const remoteStaff = (data || []).map(mapToApp);
+      const remoteStaff = (data || [])
+        .filter((row) => row && row.name)
+        .map(mapToApp);
       set({
         staffList: mergeStaffLists(remoteStaff, readLocalStaff()),
         isLoading: false,
@@ -119,7 +135,8 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
     try {
       // 現在の最大 sort_order を取得して +1
       const currentList = get().staffList;
-      const maxOrder = currentList.reduce(
+      const safeCurrentList = (currentList || []).filter((staff) => staff?.name);
+      const maxOrder = safeCurrentList.reduce(
         (max, s) => Math.max(max, s.sortOrder),
         -1
       );
@@ -137,13 +154,14 @@ export const useStaffStore = create<StaffStore>((set, get) => ({
     } catch (err: any) {
       console.error('addStaff error:', err);
       const currentList = get().staffList;
-      if (currentList.some((staff) => staff.name === trimmed)) return;
-      const maxOrder = currentList.reduce(
+      const safeCurrentList = (currentList || []).filter((staff) => staff?.name);
+      if (safeCurrentList.some((staff) => staff.name === trimmed)) return;
+      const maxOrder = safeCurrentList.reduce(
         (max, s) => Math.max(max, s.sortOrder),
         -1
       );
       const newStaff = createLocalStaff(trimmed, maxOrder + 1);
-      const newList = [...currentList, newStaff];
+      const newList = [...safeCurrentList, newStaff];
       writeLocalStaff(newList.filter((staff) => staff.id.startsWith('local-')));
       set({ staffList: newList, error: err.message });
     }
