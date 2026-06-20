@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
 type AuthMode = 'login' | 'signup' | 'reset';
+type SignupStep = 'email' | 'code' | 'password';
 
 const AUTH_MODES: Array<{ key: AuthMode; label: string }> = [
   { key: 'login', label: 'ログイン' },
@@ -21,11 +22,51 @@ const getErrorMessage = (error: unknown) => {
 
 export default function LoginPage() {
   const [mode, setMode] = useState<AuthMode>('login');
+  const [signupStep, setSignupStep] = useState<SignupStep>('email');
   const [email, setEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const isSignupEmailStep = mode === 'signup' && signupStep === 'email';
+  const isSignupCodeStep = mode === 'signup' && signupStep === 'code';
+  const isSignupPasswordStep = mode === 'signup' && signupStep === 'password';
+  const shouldShowPasswordInput = mode === 'login' || isSignupPasswordStep;
+
+  const resetFormState = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setSignupStep('email');
+    setOtpCode('');
+    setPassword('');
+    setErrorMessage('');
+    setMessage('');
+  };
+
+  const getSubmitLabel = () => {
+    if (isSubmitting) {
+      return '処理中...';
+    }
+
+    if (mode === 'signup') {
+      if (signupStep === 'email') {
+        return '認証コードを送信';
+      }
+
+      if (signupStep === 'code') {
+        return 'コードを確認';
+      }
+
+      return 'パスワードを設定';
+    }
+
+    if (mode === 'reset') {
+      return '再設定メールを送信';
+    }
+
+    return 'ログイン';
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,18 +76,38 @@ export default function LoginPage() {
 
     try {
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+        if (signupStep === 'email') {
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              shouldCreateUser: true,
+            },
+          });
+          if (error) throw error;
+
+          setSignupStep('code');
+          setMessage('認証コードを送信しました。メールを確認してください。');
+          return;
+        }
+
+        if (signupStep === 'code') {
+          const { error } = await supabase.auth.verifyOtp({
+            email,
+            token: otpCode.replace(/\s/g, ''),
+            type: 'email',
+          });
+          if (error) throw error;
+
+          setSignupStep('password');
+          setMessage('認証できました。ログイン用パスワードを設定してください。');
+          return;
+        }
+
+        const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
 
-        setMessage(
-          '登録確認メールを送信しました。メール内のリンクを開いて登録を完了してください。'
-        );
+        setMessage('パスワードを設定しました。見積システムへ移動します。');
+        window.location.href = '/';
         return;
       }
 
@@ -94,11 +155,7 @@ export default function LoginPage() {
             <button
               key={key}
               type="button"
-              onClick={() => {
-                setMode(key);
-                setErrorMessage('');
-                setMessage('');
-              }}
+              onClick={() => resetFormState(key)}
               className={`py-2 rounded-md text-[11px] font-black ${
                 mode === key
                   ? 'bg-white text-[#003366] shadow-sm'
@@ -122,24 +179,45 @@ export default function LoginPage() {
             autoComplete="email"
             autoFocus
             required
+            disabled={isSignupCodeStep || isSignupPasswordStep}
           />
         </label>
 
-        <label className="block space-y-2">
-          <span className="text-xs font-black text-slate-600">
-            パスワード
-          </span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            disabled={mode === 'reset'}
-            className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
-            autoComplete="current-password"
-            required={mode !== 'reset'}
-            minLength={mode === 'reset' ? undefined : 6}
-          />
-        </label>
+        {isSignupCodeStep && (
+          <label className="block space-y-2">
+            <span className="text-xs font-black text-slate-600">
+              認証コード
+            </span>
+            <input
+              type="text"
+              value={otpCode}
+              onChange={(event) => setOtpCode(event.target.value)}
+              className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              required
+            />
+          </label>
+        )}
+
+        {shouldShowPasswordInput && (
+          <label className="block space-y-2">
+            <span className="text-xs font-black text-slate-600">
+              パスワード
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
+              autoComplete={
+                isSignupPasswordStep ? 'new-password' : 'current-password'
+              }
+              required
+              minLength={6}
+            />
+          </label>
+        )}
 
         {message && (
           <p className="bg-blue-50 text-blue-700 border border-blue-100 rounded-md px-3 py-2 text-xs font-bold">
@@ -158,13 +236,7 @@ export default function LoginPage() {
           disabled={isSubmitting}
           className="w-full bg-[#003366] text-white py-3 rounded-lg font-black text-sm disabled:bg-slate-400"
         >
-          {isSubmitting
-            ? '処理中...'
-            : mode === 'signup'
-            ? '新規登録'
-            : mode === 'reset'
-            ? '再設定メールを送信'
-            : 'ログイン'}
+          {getSubmitLabel()}
         </button>
       </form>
     </main>
