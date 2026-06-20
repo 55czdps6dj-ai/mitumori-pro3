@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import EstimateApp from '../features/estimate/EstimateApp';
 import ReceptionApp from '../features/reception/ReceptionApp';
 import { logout } from '../features/auth/logout';
+import { useAuthGate } from '../features/auth/useAuthGate';
 
 export default function Home() {
+  const { isCheckingAuth } = useAuthGate();
   const [mode, setMode] = useState<'reception' | 'estimate'>('reception');
   const [passedCustomerData, setPassedCustomerData] = useState(null);
   const [estimateBackTo, setEstimateBackTo] = useState<'reception' | 'menu'>(
@@ -26,6 +28,14 @@ export default function Home() {
     setEstimateBackTo('reception');
     setMode('estimate');
   };
+
+  if (isCheckingAuth) {
+    return (
+      <main className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <p className="text-sm font-black text-slate-500">認証確認中...</p>
+      </main>
+    );
+  }
 
   // ── 受付・配車管理モード ──────────────────────────────
   if (mode === 'reception') {

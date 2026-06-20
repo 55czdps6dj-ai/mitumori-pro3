@@ -1,10 +1,29 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+
+type AuthMode = 'login' | 'signup' | 'reset';
+
+const AUTH_MODES: Array<{ key: AuthMode; label: string }> = [
+  { key: 'login', label: 'ログイン' },
+  { key: 'signup', label: '新規登録' },
+  { key: 'reset', label: '再設定' },
+];
+
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return '認証処理に失敗しました。入力内容を確認してください。';
+};
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -12,22 +31,44 @@ export default function LoginPage() {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+    setMessage('');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const result = await response.json().catch(() => ({}));
+      if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+        if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(result?.message || 'ログインに失敗しました。');
+        setMessage(
+          '登録確認メールを送信しました。メール内のリンクを開いて登録を完了してください。'
+        );
+        return;
       }
 
+      if (mode === 'reset') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+
+        setMessage('パスワード再設定メールを送信しました。');
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+
       window.location.href = '/';
-    } catch (error: any) {
-      setErrorMessage(error.message);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -44,8 +85,29 @@ export default function LoginPage() {
             見積システム ログイン
           </h1>
           <p className="text-xs text-slate-500 font-bold">
-            試験運用中の仮メール・パスワード認証です。
+            Supabase Authでログインします。
           </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-1 bg-slate-100 rounded-lg p-1">
+          {AUTH_MODES.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => {
+                setMode(key);
+                setErrorMessage('');
+                setMessage('');
+              }}
+              className={`py-2 rounded-md text-[11px] font-black ${
+                mode === key
+                  ? 'bg-white text-[#003366] shadow-sm'
+                  : 'text-slate-500'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         <label className="block space-y-2">
@@ -59,6 +121,7 @@ export default function LoginPage() {
             className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
             autoComplete="email"
             autoFocus
+            required
           />
         </label>
 
@@ -70,10 +133,19 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            disabled={mode === 'reset'}
             className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
             autoComplete="current-password"
+            required={mode !== 'reset'}
+            minLength={mode === 'reset' ? undefined : 6}
           />
         </label>
+
+        {message && (
+          <p className="bg-blue-50 text-blue-700 border border-blue-100 rounded-md px-3 py-2 text-xs font-bold">
+            {message}
+          </p>
+        )}
 
         {errorMessage && (
           <p className="bg-red-50 text-red-600 border border-red-100 rounded-md px-3 py-2 text-xs font-bold">
@@ -86,7 +158,13 @@ export default function LoginPage() {
           disabled={isSubmitting}
           className="w-full bg-[#003366] text-white py-3 rounded-lg font-black text-sm disabled:bg-slate-400"
         >
-          {isSubmitting ? '確認中...' : 'ログイン'}
+          {isSubmitting
+            ? '処理中...'
+            : mode === 'signup'
+            ? '新規登録'
+            : mode === 'reset'
+            ? '再設定メールを送信'
+            : 'ログイン'}
         </button>
       </form>
     </main>

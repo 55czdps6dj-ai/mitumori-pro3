@@ -1,4 +1,5 @@
 export const logout = async () => {
-  await fetch('/api/auth/logout', { method: 'POST' });
+  const { supabase } = await import('../../lib/supabase');
+  await supabase.auth.signOut();
   window.location.href = '/login';
 };
