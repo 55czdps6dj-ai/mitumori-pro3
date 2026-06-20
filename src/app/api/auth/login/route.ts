@@ -6,20 +6,24 @@ export const runtime = 'nodejs';
 const COOKIE_NAME = 'mitumori_auth';
 
 export async function POST(request: Request) {
+  const configuredEmail = process.env.APP_ACCESS_EMAIL;
   const configuredPassword = process.env.APP_ACCESS_PASSWORD;
   const cookieSecret = process.env.AUTH_COOKIE_SECRET || configuredPassword;
 
-  if (!configuredPassword || !cookieSecret) {
+  if (!configuredEmail || !configuredPassword || !cookieSecret) {
     return NextResponse.json(
-      { message: 'APP_ACCESS_PASSWORD が未設定です。' },
+      { message: 'APP_ACCESS_EMAIL または APP_ACCESS_PASSWORD が未設定です。' },
       { status: 500 }
     );
   }
 
   const body = await request.json().catch(() => ({}));
-  if (body?.password !== configuredPassword) {
+  const inputEmail = String(body?.email || '').trim().toLowerCase();
+  const allowedEmail = configuredEmail.trim().toLowerCase();
+
+  if (inputEmail !== allowedEmail || body?.password !== configuredPassword) {
     return NextResponse.json(
-      { message: 'パスワードが違います。' },
+      { message: 'メールアドレスまたはパスワードが違います。' },
       { status: 401 }
     );
   }

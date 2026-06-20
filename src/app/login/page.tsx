@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -16,7 +17,7 @@ export default function LoginPage() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       const result = await response.json().catch(() => ({}));
 
@@ -43,20 +44,34 @@ export default function LoginPage() {
             見積システム ログイン
           </h1>
           <p className="text-xs text-slate-500 font-bold">
-            試験運用中の仮パスワード認証です。
+            試験運用中の仮メール・パスワード認証です。
           </p>
         </div>
 
         <label className="block space-y-2">
           <span className="text-xs font-black text-slate-600">
-            アクセスパスワード
+            メールアドレス
+          </span>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
+            autoComplete="email"
+            autoFocus
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-xs font-black text-slate-600">
+            パスワード
           </span>
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="w-full border-2 border-slate-200 rounded-lg px-3 py-3 text-sm outline-none focus:border-[#003366]"
-            autoFocus
+            autoComplete="current-password"
           />
         </label>
 
