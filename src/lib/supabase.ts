@@ -7,15 +7,17 @@ const isSupabaseUrlValid = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(
   supabaseUrl
 );
 const isSupabaseAnonKeyAscii = /^[\x20-\x7E]+$/.test(supabaseAnonKey);
-const isSupabaseAnonKeyJwt = supabaseAnonKey.startsWith('eyJ');
+const isSupabaseAnonKeyPublic =
+  supabaseAnonKey.startsWith('eyJ') ||
+  supabaseAnonKey.startsWith('sb_publishable_');
 
 export const supabaseConfigError =
   !supabaseUrl || !supabaseAnonKey
     ? 'Supabaseの環境変数が未設定です。'
     : !isSupabaseUrlValid
     ? 'NEXT_PUBLIC_SUPABASE_URLの形式が正しくありません。'
-    : !isSupabaseAnonKeyAscii || !isSupabaseAnonKeyJwt
-    ? 'NEXT_PUBLIC_SUPABASE_ANON_KEYに正しいanon public keyを設定してください。'
+    : !isSupabaseAnonKeyAscii || !isSupabaseAnonKeyPublic
+    ? 'NEXT_PUBLIC_SUPABASE_ANON_KEYに正しいPublishable keyを設定してください。'
     : '';
 
 export const isSupabaseConfigured = !supabaseConfigError;
